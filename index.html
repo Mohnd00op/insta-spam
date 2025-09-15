@@ -577,7 +577,7 @@
         document.getElementById('download-btn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
         // 🔥 API للإنستجرام بدل التيك توك
-        const apiUrl = `https://apis-keith.vercel.app/download/instaposts?url=${encodeURIComponent(url)}`;
+        const apiUrl = `https://apis-keith.vercel.app/download/instaposts?q=${encodeURIComponent(url)}`;
         const response = await fetch(apiUrl);
         const data = await response.json();
 
@@ -596,21 +596,31 @@
       }
     }
 
-    function displayResult(data) {
-      const result = data.result;
+ function displayResult(data) {
+  if (!data.status || !data.result || !data.result.items.length) {
+    alert("❌ مفيش نتيجة");
+    return;
+  }
 
-      document.getElementById('video-title').textContent = result.title || 'Untitled';
-      document.getElementById('creator').textContent = data.creator || 'Unknown Creator';
-      document.getElementById('caption').textContent = result.caption || 'No caption available';
-      document.getElementById('thumbnail').src = result.thumbnail || 'placeholder.jpg';
+  const item = data.result.items[0];
 
-      document.getElementById('video-download').href = result.url || '#';
-      document.getElementById('audio-download').href = result.mp3 || '#';
+  document.getElementById("video-title").textContent = 
+    item.type === "video" ? "Instagram Video" : "Instagram Media";
+  document.getElementById("creator").textContent = data.creator || "Unknown Creator";
+  document.getElementById("caption").textContent = `Total items: ${data.result.total}`;
 
-      const resultElement = document.getElementById('result');
-      resultElement.style.display = 'block';
-      resultElement.style.animation = 'fadeInUp 0.5s forwards';
-    }
+  // صورة ثابتة افتراضية
+  document.getElementById("thumbnail").src = "https://via.placeholder.com/300x200?text=Instagram+Media";
+
+  // معاينة الفيديو
+  document.getElementById("preview").src = item.url;
+
+  // زرار التحميل
+  document.getElementById("video-download").href = item.url;
+
+  // اخفاء زرار الصوت لانه مش موجود
+  document.getElementById("audio-download").style.display = "none";
+}
 
     function showError(message) {
       alert('Error: ' + message);
